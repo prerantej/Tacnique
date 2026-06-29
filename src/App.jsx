@@ -7,6 +7,7 @@ import UserTable from './components/UserTable'
 import Pagination from './components/Pagination'
 import UserFormModal from './components/UserFormModal'
 import LoadingSkeleton from './components/LoadingSkeleton'
+import ConfirmDelete from './components/ConfirmDelete'
 import useUsers from './hooks/useUsers'
 import { filterUsers } from './utils/filtering'
 import { sortUsers } from './utils/sorting'
@@ -39,7 +40,9 @@ function App() {
   // Modals visibility states
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null) // null = Add Mode, object = Edit Mode
+  const [deletingUser, setDeletingUser] = useState(null)
 
   // Hook operations integration
   const {
@@ -145,41 +148,29 @@ function App() {
     setIsFormOpen(true)
   }
 
-  // Stub delete handler (will connect to Custom Modal in next task step)
   const handleDeleteTrigger = (id) => {
-    toast((t) => (
-      <div className="flex flex-col gap-2">
-        <p className="font-semibold text-slate-800 dark:text-slate-100">
-          Delete user #{id}? (Temporary default toast)
-        </p>
-        <div className="flex gap-2 justify-end">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => toast.dismiss(t.id)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={async () => {
-              toast.dismiss(t.id)
-              const delId = toast.loading('Deleting user...')
-              try {
-                await removeUser(id)
-                toast.success('User deleted successfully!', { id: delId })
-              } catch (err) {
-                toast.error('Failed to delete user.', { id: delId })
-              }
-            }}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
-    ), { duration: 5000 })
+    const targetUser = users.find((u) => u.id === id)
+    if (targetUser) {
+      setDeletingUser(targetUser)
+      setIsDeleteOpen(true)
+    }
   }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingUser) return
+    setIsDeleteOpen(false)
+    const toastId = toast.loading(`Deleting ${deletingUser.firstName} ${deletingUser.lastName}...`)
+    
+    try {
+      await removeUser(deletingUser.id)
+      toast.success('User deleted successfully!', { id: toastId })
+    } catch (err) {
+      toast.error('Failed to delete user.', { id: toastId })
+    } finally {
+      setDeletingUser(null)
+    }
+  }
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -273,6 +264,14 @@ function App() {
         onSubmit={handleFormSubmit}
         user={selectedUser}
         users={users}
+      />
+
+      {/* Confirm Delete Safety Modal Overlay */}
+      <ConfirmDelete
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        userName={deletingUser ? `${deletingUser.firstName} ${deletingUser.lastName}` : ''}
       />
     </div>
   )
