@@ -56,6 +56,13 @@ function App() {
   } = useUsers()
 
   // --- ACTIONS ---
+  // Trigger toast on API load error
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
+
   // Theme coordination
   useEffect(() => {
     const root = document.documentElement
