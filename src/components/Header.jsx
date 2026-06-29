@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sun, Moon, Users, SlidersHorizontal, Plus } from 'lucide-react'
+import { Sun, Moon, Users, SlidersHorizontal, Plus, Download } from 'lucide-react'
 import Button from './Button'
 
 /**
@@ -10,6 +10,7 @@ export const Header = ({
   toggleTheme,
   onAddClick,
   onFilterClick,
+  onExportClick,
   activeFiltersCount = 0,
   children, // SearchBar will be passed here as a child or slots
 }) => {
@@ -66,6 +67,17 @@ export const Header = ({
               )}
             </Button>
 
+            {/* Export CSV button */}
+            <Button
+              variant="secondary"
+              onClick={onExportClick}
+              icon={Download}
+              className="shrink-0"
+              aria-label="Export users to CSV"
+            >
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+
             {/* Theme Toggle Button for desktop */}
             <Button
               variant="ghost"
@@ -92,3 +104,4 @@ export const Header = ({
 }
 
 export default Header
+

@@ -11,7 +11,9 @@ import ConfirmDelete from './components/ConfirmDelete'
 import useUsers from './hooks/useUsers'
 import { filterUsers } from './utils/filtering'
 import { sortUsers } from './utils/sorting'
+import { exportToCSV } from './utils/helpers'
 import { LOCAL_STORAGE_KEYS, DEFAULT_PAGE_SIZE } from './utils/constants'
+
 
 function App() {
   // --- STATE ---
@@ -196,6 +198,7 @@ function App() {
         toggleTheme={toggleTheme}
         onAddClick={handleAddTrigger}
         onFilterClick={() => setIsFilterOpen(true)}
+        onExportClick={() => exportToCSV(sortedUsersList)}
         activeFiltersCount={selectedDepts.length}
       >
         <SearchBar onSearch={setSearchQuery} />
