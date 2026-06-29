@@ -4,6 +4,7 @@ import { X, UserPlus, Edit3 } from 'lucide-react'
 import { DEPARTMENTS } from '../utils/constants'
 import Button from './Button'
 import Input from './Input'
+import { validateUserForm } from '../utils/validators'
 
 /**
  * Reusable Form Modal for creating or editing user accounts.
@@ -14,6 +15,7 @@ export const UserFormModal = ({
   onClose,
   onSubmit,
   user = null, // null for Add mode, user object for Edit mode
+  users = [],  // existing users list for uniqueness checks
 }) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -58,33 +60,29 @@ export const UserFormModal = ({
   }, [isOpen, onClose])
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clean specific error upon typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: null }))
-    }
+    const updatedForm = { ...formData, [field]: value }
+    setFormData(updatedForm)
+    
+    // Perform real-time inline validation while typing
+    const formErrors = validateUserForm(updatedForm, users, user ? user.id : null)
+    setErrors((prev) => ({
+      ...prev,
+      [field]: formErrors[field] || null,
+    }))
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Temporary basic validation stub (will be replaced by full validators in next step)
-    const newErrors = {}
-    if (!formData.firstName.trim()) newErrors.firstName = 'First Name is required'
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last Name is required'
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid Email address'
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+    const formErrors = validateUserForm(formData, users, user ? user.id : null)
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors)
       return
     }
 
     onSubmit(formData)
   }
+
 
   return (
     <AnimatePresence>
