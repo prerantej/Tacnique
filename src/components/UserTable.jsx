@@ -1,6 +1,7 @@
 import React from 'react'
 import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import UserRow from './UserRow'
+import UserCard from './UserCard'
 
 /**
  * UserTable component renders a list of users inside a responsive layout.
@@ -82,7 +83,7 @@ export const UserTable = ({
       {/* Mobile Card Grid Layout */}
       <div className="md:hidden grid grid-cols-1 gap-4">
         {users.map((user) => (
-          <UserRow
+          <UserCard
             key={user.id}
             user={user}
             onEdit={onEdit}
